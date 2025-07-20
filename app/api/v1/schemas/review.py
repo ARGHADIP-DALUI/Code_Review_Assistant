@@ -12,3 +12,4 @@ class CodeReviewResponse(BaseModel):
     optimizations: List[str]
     score: int
     remark: str
+    report_url: str  # 🆕 Add download link field
