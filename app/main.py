@@ -4,6 +4,7 @@ from fastapi.responses import FileResponse
 import os
 
 from app.api.v1.endpoints import submit_code  # ✅ Add this
+from app.core.database import init_db         # ✅ Add DB initializer
 
 app = FastAPI(title="Code Review Assistant")
 
@@ -24,5 +25,10 @@ def favicon():
     favicon_path = os.path.join("app", "static", "favicon.ico")
     return FileResponse(favicon_path)
 
-# ✅ Mount the API endpoints here
+# ✅ Mount the API endpoints
 app.include_router(submit_code.router, prefix="/api/v1")
+
+# ✅ Initialize DB at startup
+@app.on_event("startup")
+def startup_event():
+    init_db()

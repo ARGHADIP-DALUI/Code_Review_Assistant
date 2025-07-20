@@ -1,15 +1,25 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
+from sqlalchemy.orm import Session
 from app.api.v1.schemas.review import CodeReviewRequest, CodeReviewResponse
 from app.core.review_engine import analyze_code
-from app.core.pdf_generator import generate_pdf  # 🆕 Import PDF generator
+from app.core.pdf_generator import generate_pdf
+from app.core.database import SessionLocal
+from app.models.code_review import CodeReview
 
 router = APIRouter()
 
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
 @router.post("/review", response_model=CodeReviewResponse)
-def review_code(request: CodeReviewRequest):
+def review_code(request: CodeReviewRequest, db: Session = Depends(get_db)):
     result = analyze_code(request.language, request.code)
 
-    # 🆕 Generate PDF
+    # Generate PDF
     pdf_filename = generate_pdf(
         code=request.code,
         language=request.language,
@@ -20,5 +30,18 @@ def review_code(request: CodeReviewRequest):
         remark=result["remark"]
     )
 
-    result["report_url"] = f"/static/{pdf_filename}"  # 🆕 Add report URL
+    # Save to DB
+    review_record = CodeReview(
+        code=request.code,
+        language=request.language,
+        suggestions="\n".join(result["suggestions"]),
+        warnings="\n".join(result["warnings"]),
+        optimizations="\n".join(result["optimizations"]),
+        score=result["score"],
+        remark=result["remark"]
+    )
+    db.add(review_record)
+    db.commit()
+
+    result["report_url"] = f"/static/{pdf_filename}"
     return CodeReviewResponse(**result)
