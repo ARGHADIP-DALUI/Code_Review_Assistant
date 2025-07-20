@@ -1,13 +1,10 @@
 from fastapi import APIRouter
-from app.api.v1.schemas.review import CodeReviewRequest
+from app.api.v1.schemas.review import CodeReviewRequest, CodeReviewResponse
+from app.core.review_engine import analyze_code
 
 router = APIRouter()
 
-@router.post("/review")
+@router.post("/review", response_model=CodeReviewResponse)
 def review_code(request: CodeReviewRequest):
-    # 🔁 Placeholder logic
-    return {
-        "feedback": "✅ Code looks fine. Consider using list comprehension for efficiency.",
-        "language": request.language,
-        "review_type": request.review_type
-    }
+    result = analyze_code(request.language, request.code)
+    return CodeReviewResponse(**result)

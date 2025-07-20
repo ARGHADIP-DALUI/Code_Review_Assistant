@@ -6,7 +6,7 @@ def analyze_python_code(code: str) -> Dict[str, List[str]]:
     warnings = []
     optimizations = []
 
-    # Rule 1: Check for unused imports
+    # --- Python Rules ---
     if "import " in code:
         lines = code.split("\n")
         used_names = set()
@@ -22,19 +22,63 @@ def analyze_python_code(code: str) -> Dict[str, List[str]]:
             if imp not in used_names:
                 warnings.append(f"⚠️ Unused import detected: {imp}")
 
-    # Rule 2: Suggest using list comprehension
     if re.search(r"for\s+\w+\s+in\s+\w+:\s+\n+\s+\w+\.append\(", code):
         optimizations.append("💡 Consider using list comprehension for better performance.")
 
-    # Rule 3: Missing function docstrings
     functions = re.findall(r"def\s+\w+\(.*\):", code)
     for fn in functions:
         fn_line_index = code.splitlines().index(fn)
         if not code.splitlines()[fn_line_index + 1].strip().startswith('"""'):
             suggestions.append(f"✅ Add a docstring to function: `{fn.strip()}`")
 
+    return suggestions, warnings, optimizations
+
+
+def analyze_javascript_code(code: str) -> Dict[str, List[str]]:
+    suggestions = []
+    warnings = []
+    optimizations = []
+
+    # --- JavaScript Rules ---
+    if "var " in code:
+        suggestions.append("✅ Consider using 'let' or 'const' instead of 'var'.")
+
+    if re.search(r"==[^=]", code):
+        warnings.append("⚠️ Use '===' for strict equality in JavaScript.")
+
+    if "console.log(" in code:
+        optimizations.append("💡 Remove console.log statements in production code.")
+
+    return suggestions, warnings, optimizations
+
+
+def analyze_code(language: str, code: str) -> Dict[str, List[str] | int | str]:
+    if language.lower() == "python":
+        suggestions, warnings, optimizations = analyze_python_code(code)
+    elif language.lower() == "javascript":
+        suggestions, warnings, optimizations = analyze_javascript_code(code)
+    else:
+        return {
+            "suggestions": ["❌ Language not supported yet."],
+            "warnings": [],
+            "optimizations": [],
+            "score": 0,
+            "remark": "Unsupported"
+        }
+
+    # Score Calculation
+    total = len(suggestions) + len(warnings) + len(optimizations)
+    deductions = len(warnings) * 5 + len(suggestions) * 2 + len(optimizations) * 1
+    score = max(0, 100 - deductions)
+
+    remark = "Excellent" if score >= 90 else (
+        "Good" if score >= 75 else "Needs Improvement"
+    )
+
     return {
         "suggestions": suggestions,
         "warnings": warnings,
-        "optimizations": optimizations
+        "optimizations": optimizations,
+        "score": score,
+        "remark": remark
     }
