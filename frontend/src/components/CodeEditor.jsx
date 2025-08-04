@@ -1,11 +1,12 @@
 import { useState } from "react";
 import Editor from "@monaco-editor/react";
+import ResultView from "./ResultView"; // ✅ Import ResultView
 
 export default function CodeEditor() {
   const [language, setLanguage] = useState("python");
   const [reviewType, setReviewType] = useState("basic");
   const [code, setCode] = useState("");
-  const [reviewResult, setReviewResult] = useState(null); // ✅ NEW
+  const [reviewResult, setReviewResult] = useState(null); // ✅ Store review result
 
   const handleSubmit = async () => {
     try {
@@ -69,22 +70,8 @@ export default function CodeEditor() {
       </button>
 
       {/* ✅ UI for Review Output */}
-      {reviewResult && (
-        <div className="mt-6 p-4 bg-white rounded shadow space-y-2">
-          <h2 className="text-xl font-semibold text-green-700">🧾 Review Summary</h2>
-          <p><strong>Remark:</strong> {reviewResult.remark}</p>
-          {reviewResult.suggestions && (
-            <div>
-              <strong>Suggestions:</strong>
-              <ul className="list-disc ml-5">
-                {reviewResult.suggestions.map((s, i) => (
-                  <li key={i}>{s}</li>
-                ))}
-              </ul>
-            </div>
-          )}
-        </div>
-      )}
+      {reviewResult && <ResultView reviewResult={reviewResult} />} {/* Pass reviewResult to ResultView */}
     </div>
   );
 }
+
