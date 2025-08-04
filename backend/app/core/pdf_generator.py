@@ -2,7 +2,15 @@ from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 import os
 
-def generate_pdf(code: str, language: str, suggestions: list, warnings: list, optimizations: list, score: int, remark: str) -> str:
+def generate_review_pdf(
+    code: str,
+    language: str,
+    suggestions: list[str],
+    warnings: list[str],
+    optimizations: list[str],
+    score: int,
+    remark: str
+) -> str:
     filename = "code_review_report.pdf"
     filepath = os.path.join("app", "static", filename)
 
@@ -49,3 +57,5 @@ def generate_pdf(code: str, language: str, suggestions: list, warnings: list, op
 
     c.save()
     return filename
+
+

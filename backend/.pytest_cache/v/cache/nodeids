@@ -1,0 +1,7 @@
+[
+  "tests/test_api.py::test_review_basic",
+  "tests/test_style_checker.py::test_clean_code",
+  "tests/test_style_checker.py::test_code_with_warnings_and_suggestions",
+  "tests/test_style_checker.py::test_long_lines_and_tabs",
+  "tests/test_style_checker.py::test_style_cache"
+]
