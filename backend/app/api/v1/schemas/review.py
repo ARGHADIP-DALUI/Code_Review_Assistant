@@ -10,6 +10,8 @@ class CodeReviewResponse(BaseModel):
     suggestions: List[str]
     warnings: List[str]
     optimizations: List[str]
+    bugs: List[str]  # ✅ Added bug list to response schema
     score: int
     remark: str
-    report_url: str  # 🆕 Add download link field
+    report_url: str  # ✅ Link to download PDF report
+

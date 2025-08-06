@@ -1,17 +1,22 @@
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 import os
+import time
+from typing import List
 
 def generate_review_pdf(
     code: str,
     language: str,
-    suggestions: list[str],
-    warnings: list[str],
-    optimizations: list[str],
+    suggestions: List[str],
+    warnings: List[str],
+    optimizations: List[str],
+    bugs: List[str],
     score: int,
     remark: str
 ) -> str:
-    filename = "code_review_report.pdf"
+    # ✅ Generate unique filename using timestamp
+    timestamp = int(time.time())
+    filename = f"code_review_report_{timestamp}.pdf"
     filepath = os.path.join("app", "static", filename)
 
     c = canvas.Canvas(filepath, pagesize=letter)
@@ -28,6 +33,8 @@ def generate_review_pdf(
 
     def draw_section(title, items):
         nonlocal y
+        if not items:
+            return
         c.setFont("Helvetica-Bold", 14)
         c.drawString(50, y, title)
         y -= 20
@@ -42,6 +49,7 @@ def generate_review_pdf(
     draw_section("Suggestions", suggestions)
     draw_section("Warnings", warnings)
     draw_section("Optimizations", optimizations)
+    draw_section("Detected Bugs", bugs)
 
     y -= 30
     c.setFont("Helvetica-Bold", 14)
@@ -56,6 +64,4 @@ def generate_review_pdf(
             y = height - 50
 
     c.save()
-    return filename
-
-
+    return filename  # ✅ Return unique filename
